@@ -10,6 +10,7 @@ Dynamic Input Fields: Input fields are dynamically generated based on the select
 Message Generation: Generate HL7 messages with user-defined values for each field.
 Console Output: View generated HL7 messages in the console for real-time feedback.
 Save to File: Save generated HL7 messages to a text file for later use.
+
 How to Use:
 
 Select a segment from the dropdown menu.
