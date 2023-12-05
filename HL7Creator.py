@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from tkinter import Text, END
+from tkinter import Text, END, Checkbutton, IntVar
 import sys
 from io import StringIO
 
@@ -33,8 +33,13 @@ class HL7MessageGenerator:
 
         self.messages = []  # Lista para almacenar mensajes generados
 
-        #self.console_text = Text(root, wrap="word", height=5, width=60)
-        #self.console_text.grid(row=3, column=0, padx=10, pady=5, columnspan=2)
+       # Checklist for segments
+        self.segments_checklist = {}
+        self.create_checklist()
+
+        # Generate Test Segment button
+        self.generate_test_button = tk.Button(root, text="Generate Test Segment", command=self.generate_test_segment)
+        self.generate_test_button.grid(row=6, column=0, pady=5, columnspan=2)
 
         self.generate_button = tk.Button(root, text="Generate Message", command=self.generate_hl7)
         self.generate_button.grid(row=4, column=0, pady=5, columnspan=2)
@@ -138,7 +143,36 @@ class HL7MessageGenerator:
                     file.write(message + '\n')
 
             print(f"Messages saved to {file_path}")
+    def create_checklist(self):
+        segments_label = ttk.Label(self.root, text="Select Segments:")
+        segments_label.grid(row=3, column=0, padx=10, pady=10)
 
+        segments = ["MSH", "EVN", "PID", "IN1", "PV1", "FT1", "OCR", "OBR"]
+        for i, segment in enumerate(segments):
+            var = IntVar()
+            checkbox = Checkbutton(self.root, text=segment, variable=var)
+            checkbox.grid(row=i + 4, column=0, padx=5, sticky="w")
+            self.segments_checklist[segment] = var
+
+    def generate_test_segment(self):
+        selected_segments = [segment for segment, var in self.segments_checklist.items() if var.get() == 1]
+        
+        for segment in selected_segments:
+            test_segment = self.generate_hardcoded_test_segment(segment)
+            print(test_segment)
+
+    def generate_hardcoded_test_segment(self, segment):
+        if segment == "MSH":
+            return "MSH|^~\\&|LLS|DN|INF|DN000011|201605300100||ADT^A04|58954.001|P|2.5.1|||NE|NE"
+        elif segment == "EVN":
+            return "EVN|A04|201605300100"
+        elif segment == "PID":
+            return "PID|000001|90017|90017||TEST^NAME^Q||19820214|M|||123 SESAME STREET^SOMEWHER^NY^42151||(555)1425890^^PH^johnnyq@praxisemr.com^^555^1425890~(777)4588854^^CP||||||123456789|"
+        elif segment == "IN1":
+            return "IN1|1||B|BLUE CROSS OF VA|PO BOX 27401^^RICHMOND^VA^23279||(800)242 7277||||||||G|SMITH^JOHN^L|S||123 ANY ST^^LYNCHBURG^VA^24551|||||||||||||||||54321|"
+        elif segment == "PV1":
+            return "PV1|||||||P2^JONES^BILL^^^^MD|R1^BARNES^EDWARD^^^DR^MD|"
+        
     def on_frame_configure(self, event):
         self.fields_canvas.configure(scrollregion=self.fields_canvas.bbox("all"))
 
